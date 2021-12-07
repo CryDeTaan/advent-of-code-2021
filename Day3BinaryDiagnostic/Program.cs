@@ -17,7 +17,7 @@ namespace Day3BinaryDiagnostic
             string data = @"DiagnosticData.txt";
             BinaryStrings = File.ReadAllLines(data).ToList();
 
-            // Just so tha the arrays we'll be working with is not static
+            // Just so that the arrays we'll be working with are not static
             int binaryLength = BinaryStrings[0].Length;
 
             // Set some arrays to keep track of the most and least significant bits
@@ -41,7 +41,7 @@ namespace Day3BinaryDiagnostic
                 }
             }
 
-            // Determine if the position is should be 1 or 0 depending on the
+            // Determine if the position should be 1 or 0 depending on the
             // number of times a 1 or 0 were observed. 
             for (int i = 0; i < binaryLength ; i++) 
             {
@@ -70,7 +70,6 @@ namespace Day3BinaryDiagnostic
             // Calculate the oxygen generator rating.
             OxygenList = BinaryStrings.ToList();
 
-            // foreach (string OxygenRating in OxygenList)
             for (int i = 0; i < binaryLength; i++) 
             {
                 // If the list has one value we have the rating and we can break the loop
@@ -150,7 +149,7 @@ namespace Day3BinaryDiagnostic
                 mostSignificantBit   = 0;
                 leastSignificantBit  = 1;
             }
-            // If the number of ones and zeros are the same, used the preferred bit for both.
+            // If the number of ones and zeros are the same, use the preferred bit for both.
             else
             {
                 mostSignificantBit  = preferred;
