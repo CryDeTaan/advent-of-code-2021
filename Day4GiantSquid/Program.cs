@@ -4,12 +4,12 @@ namespace Day4GiantSquid
 {
     class Program
     {
-        private static List<int[,,]> _boards = new List<int[,,]>();
-        private static int[,,] _winningBoard = new int[,,]{};
+        private static List<int[,]> _boards = new List<int[,]>();
+        private static int[,] _winningBoard = new int[,]{};
         private static int _lastnumber = new int{};
         static void Main(string[] args)
         {
-            // Read string data into Array
+            // Read string data .
             // string data = @"TestData.txt";
             string data = @"BingoData.txt";
             // Trim and removes all double spaces between numbers.
@@ -22,7 +22,7 @@ namespace Day4GiantSquid
             // Loop over each board and convert it to a multidimensional array.
             foreach (string board in boards)
             {
-                int[,,] boardArr = MakeBoardAMultidimensionalArray(board);
+                int[,] boardArr = MakeBoardAMultidimensionalArray(board);
                 // Add the multidimension board to a static property of the class.
                 _boards.Add(boardArr);
             }
@@ -39,7 +39,7 @@ namespace Day4GiantSquid
             foreach ( int number in numbers)
             {
                 // For each number, loop over all the boards 
-                // to find the number in the board. 
+                // to find the number on the board. 
                 for ( int i = 0; i < _boards.Count; i++)
                 {
                     FindNumberOnBoard(i, number);
@@ -62,9 +62,8 @@ namespace Day4GiantSquid
             // able to calculate the final score.
             FixBoard(); 
 
-            // Write the Winning board in its 2 different varaitions.
+            // Write the Winning board to the console.
             WriteBoard(_winningBoard); 
-            WriteMarkedBoard(_winningBoard); 
 
             // Calculate the sum of the remaining 
             // numbers on the winning board.
@@ -89,7 +88,6 @@ namespace Day4GiantSquid
         {
             // From the string containing all the boards,
             // add each board as an item to a boards list.
-
             List<string> boards = new List<string>();
             foreach (var board in boardsData.Split("\n\n"))
             {
@@ -99,9 +97,9 @@ namespace Day4GiantSquid
             return boards;
         }
 
-        private static int[,,] MakeBoardAMultidimensionalArray(string grid)
+        private static int[,] MakeBoardAMultidimensionalArray(string grid)
         {
-            int[,,] result = new int[6, 6, 2];
+            int[,] result = new int[6, 6];
 
             // [y,x] or [x,y] - ¯\_(ツ)_/¯
             // https://stackoverflow.com/a/2203610
@@ -114,7 +112,7 @@ namespace Day4GiantSquid
                 x = 0;
                 foreach (var col in row.Trim().Split(' '))
                 {
-                    result[y, x, 0] = int.Parse(col.Trim());
+                    result[y, x] = int.Parse(col.Trim());
                     x++;
                 }
                 y++;
@@ -124,25 +122,25 @@ namespace Day4GiantSquid
 
         private static void FindNumberOnBoard(int boardIndex, int number)
         {
-            // Loop over each x and y axis to find the number. 
+            // Loop over each col and row to find the number. 
             bool winner = false;
             for (int y = 0; y < 5 ; y++) 
             {
                 for (int x = 0; x < 5 ; x++) 
                 {
                     // If a number on the board matches,
-                    if (_boards[boardIndex][y, x, 0] == number)
+                    if (_boards[boardIndex][y, x] == number)
                     {
-                        // mark it and increment the counter col
-                        // for the x and y axis.
+                        // mark it and increment the counter
+                        // for the col and row.
                         MarkBoardNumber(boardIndex, (y, x));
                         // Check if the newly drawn number caused the board 
                         // to have a complete row or column.
                         winner = IsAWinningBoard(boardIndex, (y, x));
                     }
                     // If the board has a complete row or column, set the last
-                    // drawn number as it will be used for the final score, and
-                    // return out of the function, otherwise continue.
+                    // drawn number as it will be used for the final score,
+                    // and exit the function, otherwise continue.
                     if (winner == true)
                     {
                         _lastnumber = number;
@@ -154,23 +152,20 @@ namespace Day4GiantSquid
 
         private static void MarkBoardNumber(int boardIndex, (int y, int x) position)
         {
-            // Mark the board number by setting the 1st index dimension
-            // to the drawn number to keep track of it. 
-            _boards[boardIndex][position.y, position.x, 1] = _boards[boardIndex][position.y, position.x,0];
-            // Mark the matched number to -1, it will be "fixed" later, but
+            // Mark the matched number as -1, it will be "fixed" later, but
             // cannot be 0 as that is a valid number and may be matched.
-            _boards[boardIndex][position.y, position.x, 0] = -1;
+            _boards[boardIndex][position.y, position.x] = -1;
 
             // Increment the column and row total of the marched number.
-            _boards[boardIndex][5, position.x, 1]++;
-            _boards[boardIndex][position.y, 5, 1]++;
+            _boards[boardIndex][5, position.x]++;
+            _boards[boardIndex][position.y, 5]++;
         }
 
         private static bool IsAWinningBoard(int board, (int y, int x) position)
         {
             // Check if the board has a complete row or column,
             // and if so set the winning board field
-            if (_boards[board][5, position.x, 1] == 5 || _boards[board][position.y, 5, 1] == 5)
+            if (_boards[board][5, position.x] == 5 || _boards[board][position.y, 5] == 5)
             {
                 _winningBoard = _boards[board];
                 return true;
@@ -184,54 +179,39 @@ namespace Day4GiantSquid
             {
                 for (int x = 0; x < 5 ; x++) 
                 {
-                    if (_winningBoard[y, x, 0] == -1)
+                    if (_winningBoard[y, x] == -1)
                     {
-                        _winningBoard[y, x, 0] = 0;
+                        _winningBoard[y, x] = 0;
                     }
                 }
             }
 
         }
 
-        private static int SumRemainingNumbersOfWinningBoard(int[,,] winningBoard)
+        private static int SumRemainingNumbersOfWinningBoard(int[,] winningBoard)
         {
             int sum = 0;
             for (int y = 0; y < 5 ; y++) 
             {
                 for (int x = 0; x < 5 ; x++) 
                 {
-                    sum += winningBoard[y, x, 0];
+                    sum += winningBoard[y, x];
                 }
             }
             return sum;
         }
 
-        private static void WriteBoard(int[,,] board)
-        {
-            for (int y = 0; y < 5 ; y++) 
-            {
-                Console.WriteLine("{0, 2} {1, 2} {2, 2} {3, 2} {4, 2}",
-                                   board[y, 0, 0], 
-                                   board[y, 1, 0], 
-                                   board[y, 2, 0], 
-                                   board[y, 3, 0], 
-                                   board[y, 4, 0] 
-                                   );
-            }
-            Console.WriteLine();
-        } 
-
-        private static void WriteMarkedBoard(int[,,] board)
+        private static void WriteBoard(int[,] board)
         {
             for (int y = 0; y < 6 ; y++) 
             {
                 Console.WriteLine("{0, 2} {1, 2} {2, 2} {3, 2} {4, 2} {5, 2}",
-                                   board[y, 0, 1], 
-                                   board[y, 1, 1], 
-                                   board[y, 2, 1], 
-                                   board[y, 3, 1], 
-                                   board[y, 4, 1], 
-                                   board[y, 5, 1] 
+                                   board[y, 0], 
+                                   board[y, 1], 
+                                   board[y, 2], 
+                                   board[y, 3], 
+                                   board[y, 4],
+                                   board[y, 5] 
                                    );
             }
             Console.WriteLine();
