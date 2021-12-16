@@ -4,11 +4,12 @@ namespace Day5HydrothermalVenture
 {
     class Program
     {
-        private static int[,] _diagram = new int[10,10];
+        private static int[,] _diagram = new int[,]{};
         static void Main(string[] args)
         {
             // Read Data into Array
-            string data = @"TestData.txt";
+            // string data = @"TestData.txt";
+            string data = @"VentLines.txt";
             List<(int x, int y)[]> ventLines = File.ReadAllLines(data)
                 .Select(line => line.Replace(" -> ", ","))
                 .Select(line => line.Split(','))
@@ -19,19 +20,38 @@ namespace Day5HydrothermalVenture
                         })
                 .ToList();
 
+            (int value1, int value2) maxValues = GetMaxValues(ventLines);
+            _diagram = new int[maxValues.value2, maxValues.value1];
+
             foreach ((int x, int y)[] vent in ventLines)
             {
-
                 char axis = GetAxis(vent);
                 if (!Char.IsLetter(axis)) continue;
 
                 int[] range = GetRange(vent, axis);
-
                 int position = GetPosition(vent, axis);
-                PlotLines(axis, position , range);
+
+                PlotLines(axis, position, range);
             }
 
-            WriteDiagram(_diagram);
+            CountLineOverlap(_diagram, maxValues);
+        }
+
+        private static (int value1, int value2) GetMaxValues(List<(int x, int y)[]> ventLines)
+        {
+            int maxKey = 0;
+            int maxValue = 0;
+            for (int i = 0; i < ventLines.Count; i++)
+            {
+                int maxLKey = ventLines[i].Max(x => x.Item1);
+                int maxLValue = ventLines[i].Max(x => x.Item2);
+
+                maxKey = maxLKey > maxKey ? maxLKey : maxKey;
+                maxValue = maxLValue > maxValue ? maxLValue : maxValue;
+
+            }
+            // +1 as we are counting from 0
+            return (maxKey+1, maxValue+1);
         }
 
         private static int GetPosition((int x, int y)[] vent, char axis)
@@ -87,25 +107,17 @@ namespace Day5HydrothermalVenture
             }
         }
 
-        private static void WriteDiagram(int[,] diagram)
+        private static void CountLineOverlap(int[,] diagram, (int value1, int value2) maxValues)
         {
-            Console.WriteLine();
-            for (int y = 0; y < 10 ; y++) 
+            int counter = 0;
+            for (int y = 0; y < maxValues.value2 ; y++) 
             {
-                Console.WriteLine("{0, 2} {1, 2} {2, 2} {3, 2} {4, 2} {5, 2} {6, 2} {7, 2} {8, 2} {9, 2}",
-                                   diagram[y, 0] == 0 ? "." : diagram[y, 0],
-                                   diagram[y, 1] == 0 ? "." : diagram[y, 1], 
-                                   diagram[y, 2] == 0 ? "." : diagram[y, 2], 
-                                   diagram[y, 3] == 0 ? "." : diagram[y, 3], 
-                                   diagram[y, 4] == 0 ? "." : diagram[y, 4],
-                                   diagram[y, 5] == 0 ? "." : diagram[y, 5], 
-                                   diagram[y, 6] == 0 ? "." : diagram[y, 6], 
-                                   diagram[y, 7] == 0 ? "." : diagram[y, 7], 
-                                   diagram[y, 8] == 0 ? "." : diagram[y, 8], 
-                                   diagram[y, 9] == 0 ? "." : diagram[y, 9] 
-                                   );
+                for (int x = 0; x < maxValues.value2; x++)
+                {
+                    if(diagram[y, x] > 1) counter++;
+                }
             }
-            Console.WriteLine();
+            Console.WriteLine("The vent lines overlap {0} times.", counter);
         } 
     }
 }
