@@ -26,17 +26,42 @@ namespace Day5HydrothermalVenture
             foreach ((int x, int y)[] vent in ventLines)
             {
                 char axis = GetAxis(vent);
-                if (!Char.IsLetter(axis)) continue;
-
-                int[] range = GetRange(vent, axis);
-                int position = GetPosition(vent, axis);
-
-                PlotLines(axis, position, range);
+                if (Char.IsLetter(axis)) PlotHorizontalOrVertical(vent, axis);
+                else PlotDiagonal(vent);
             }
 
             CountLineOverlap(_diagram, maxValues);
         }
 
+        private static void PlotDiagonal((int x, int y)[] vent)
+        {
+            bool reverseX = vent[0].x > vent[1].x;
+            int fromX = Math.Min(vent[0].x, vent[1].x);
+            int toX = Math.Max(vent[0].x, vent[1].x);
+
+            int[] numbersX = Enumerable.Range(fromX, toX - fromX + 1).ToArray();
+            numbersX = reverseX ? numbersX.Reverse().ToArray() : numbersX;
+
+            bool reverseY = vent[0].y > vent[1].y;
+            int fromY = Math.Min(vent[0].y, vent[1].y);
+            int toY = Math.Max(vent[0].y, vent[1].y);
+            int[] numbersY = Enumerable.Range(fromY, toY - fromY + 1).ToArray();
+            numbersY = reverseY ? numbersY.Reverse().ToArray() : numbersY;
+
+            for(int i = 0; i < numbersX.Length; i++)
+            {
+                _diagram[numbersY[i], numbersX[i]]++;
+            }
+        }
+
+        private static void PlotHorizontalOrVertical((int x, int y)[] vent, char axis)
+        {
+            int[] range = GetRange(vent, axis);
+            int position = GetPosition(vent, axis);
+
+            PlotLines(axis, position, range);
+
+        }
         private static (int value1, int value2) GetMaxValues(List<(int x, int y)[]> ventLines)
         {
             int maxKey = 0;
@@ -114,8 +139,10 @@ namespace Day5HydrothermalVenture
             {
                 for (int x = 0; x < maxValues.value2; x++)
                 {
+                    // Console.Write("{0, 2}", diagram[y, x] == 0 ? "." : diagram[y, x]);
                     if(diagram[y, x] > 1) counter++;
                 }
+                // Console.WriteLine();
             }
             Console.WriteLine("The vent lines overlap {0} times.", counter);
         } 
